@@ -23,14 +23,18 @@ $openssl_include_folder = $openssl_base_folder + "\include64"
 $openssl_libs_folder = $openssl_base_folder + "\lib64"
 
 # Download Qt sources, unpack.
+[System.Net.ServicePointManager]::SecurityProtocol = 3072 -bor 768 -bor 192 -bor 48
 Invoke-WebRequest -Uri $qt_sources_url -OutFile $qt_archive_file
 & "$tools_folder\7za.exe" x $qt_archive_file
+
+# TODO: After download is completed, need to patch files (overwrite files with content of msvc-build511-static folder).
+# https://github.com/qt/qtbase/commit/0ef66e98ccf4946a0e4513ab5fc157df0f0aca4e
 
 # Configure.
 mkdir $build_folder
 cd $build_folder
 
-& "$qt_src_base_folder\configure.bat" -debug-and-release -opensource -confirm-license -platform win32-msvc2017 -opengl desktop -no-qml-debug -no-iconv -no-dbus -no-icu -no-fontconfig -no-freetype -qt-harfbuzz -nomake examples -nomake tests -skip qt3d -skip qtactiveqt -skip qtcanvas3d -skip qtconnectivity -skip qtdeclarative -skip qtdatavis3d -skip qtdoc -skip qtgamepad -skip qtcharts -skip qtgraphicaleffects -skip qtlocation -skip qtmultimedia -skip qtnetworkauth -skip qtpurchasing -skip qtquickcontrols -skip qtquickcontrols2 -skip qtremoteobjects -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtvirtualkeyboard -skip qtwebchannel -skip qtwebengine -skip qtwebsockets -skip qtwebview -skip qtscript -mp -optimize-size -D "JAS_DLL=0" -static -static-runtime -prefix $prefix_folder -ltcg -openssl -openssl-linked -I $openssl_include_folder -L $openssl_libs_folder OPENSSL_LIBS="-lUser32 -lAdvapi32 -lGdi32 -llibeay32MT -lssleay32MT"
+& "$qt_src_base_folder\configure.bat" -debug-and-release -opensource -confirm-license -platform win32-msvc2017 -opengl desktop -no-qml-debug -no-iconv -no-dbus -no-icu -no-fontconfig -no-freetype -qt-harfbuzz -nomake examples -nomake tests -skip qt3d -skip qtactiveqt -skip qtcanvas3d -skip qtconnectivity -skip qtdeclarative -skip qtdatavis3d -skip qtdoc -skip qtgamepad -skip qtcharts -skip qtgraphicaleffects -skip qtlocation -skip qtmultimedia -skip qtnetworkauth -skip qtpurchasing -skip qtquickcontrols -skip qtquickcontrols2 -skip qtremoteobjects -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtvirtualkeyboard -skip qtwebchannel -skip qtwebengine -skip qtwebsockets -skip qtwebview -skip qtscript -mp -optimize-size -D "JAS_DLL=0" -static -static-runtime -prefix $prefix_folder -ltcg -I $openssl_include_folder -L $openssl_libs_folder OPENSSL_LIBS="-lUser32 -lAdvapi32 -lGdi32 -llibeay32MT -lssleay32MT"
 
 # Compile.
 & "$tools_folder\jom.exe"
